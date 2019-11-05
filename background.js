@@ -10,9 +10,9 @@ const errorCode = {
 };
 // 统计签到结果
 const counter = {
-    '签到成功': 0,
-    '重复签到': 0,
-    '贴吧不存在': 0
+    '0': 0,
+    '1101': 0,
+    '1010': 0
 };
 
 // 把请求设成同步
@@ -58,6 +58,7 @@ async function getTbs(){
             .then(text => {
                 let index = text.search(/'tbs':/);
                 let tbs = text.substr(index + 8, 26);
+                console.log(info.kw);
                 promises.push(sign(info.kw, tbs));
             })
         })
@@ -77,7 +78,8 @@ async function getTbs(){
             await data.json()
             .then(json => {
                 console.log(json);
-                counter[errorCode[json.no]]++;
+                counter[json.no]++;
+                console.log(counter);
             })
         })
         console.log(counter);
