@@ -5,13 +5,13 @@ let page = 1;
 $.ajaxSettings.async = false;
 
 // 获取所有关注的贴吧
-function getAllTiebaInfo(){
+function getAllTiebaInfo() {
     // 获取 page 页的所有贴吧
     $.get(`http://tieba.baidu.com/f/like/mylike?&pn=${page}`, (data) => {
         let html = $.parseHTML(data);
         let list = $(html).find('.forum_table tr td:first-child a');
         // 当前页有数据
-        if(list.length){
+        if (list.length) {
             for (let i = 0; i < list.length; i++) {
                 // 保存贴吧名和链接
                 params.push({
@@ -24,7 +24,7 @@ function getAllTiebaInfo(){
             getAllTiebaInfo();
         }
         // 当前页没数据,说明所有贴吧信息已经获取了,停止获取信息
-        else{
+        else {
             console.log(`共关注了 ${params.length} 个贴吧`);
             getTbs();
         }
@@ -38,7 +38,7 @@ let resigned = 0;
 // 其他原因
 let other = 0;
 // 获取 tbs 参数
-function getTbs(){
+function getTbs() {
     // 所有贴吧签到都需要 tbs 参数
     for (let info of params) {
         // 获取每个贴吧的 tbs 参数
@@ -54,7 +54,7 @@ function getTbs(){
 }
 
 // 签到
-function sign(kw, tbs){
+function sign(kw, tbs) {
     $.post("http://tieba.baidu.com/sign/add", {
         ie: 'utf-8',
         kw,
@@ -64,12 +64,10 @@ function sign(kw, tbs){
         if (!json.no) {
             signed++;
             console.log(`贴吧 ${kw} 签到成功!!`);
-        }
-        else if(json.no == 1101){
+        } else if (json.no == 1101) {
             resigned++;
             console.log(`贴吧 ${kw} 重复签到!!`);
-        }
-        else{
+        } else {
             other++;
             console.log(`贴吧 ${kw}: ${json.error}`);
         }
