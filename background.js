@@ -29,6 +29,18 @@ function isSameDay(dateA, dateB) {
     return (dateA.setHours(0, 0, 0, 0) == dateB.setHours(0, 0, 0, 0));
 }
 
+// 下一次签到时间: 第二天 00:00:30
+function getNextSignDate(){
+    let today = new Date();
+    let oneday = 24 * 60 * 60 * 1000;
+    today.setHours(0);
+    today.setMinutes(0);
+    today.setSeconds(0);
+    today.setMilliseconds(0);
+    let tomorrow = today.valueOf() + oneday + 30 * 1000;
+    return new Date(tomorrow);
+}
+
 // 获取所有关注的贴吧
 function getAllTiebaInfo() {
     // 获取 page 页的所有贴吧
@@ -124,6 +136,9 @@ chrome.storage.sync.get('last_sign_time', (res) => {
         let last_sign_time = new Date(res.last_sign_time);
         if (isSameDay(now, last_sign_time)) {
             console.log("今天已经签到过了!");
+            setTimeout(() => {
+                getAllTiebaInfo();
+            }, getNextSignDate() - new Date());
         }
         else{
             getAllTiebaInfo();
