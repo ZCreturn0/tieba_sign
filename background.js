@@ -25,11 +25,18 @@ function getAllTiebaInfo(){
         }
         // 当前页没数据,说明所有贴吧信息已经获取了,停止获取信息
         else{
+            console.log(`共关注了 ${params.length} 个贴吧`);
             getTbs();
         }
     });
 }
 
+// 已签到的贴吧
+let signed = 0;
+// 重复签到
+let resigned = 0;
+// 其他原因
+let other = 0;
 // 获取 tbs 参数
 function getTbs(){
     // 所有贴吧签到都需要 tbs 参数
@@ -43,6 +50,7 @@ function getTbs(){
             sign(info.kw, tbs);
         });
     }
+    console.log(`成功签到了 ${signed} 个贴吧;重复签到 ${resigned} 个贴吧;因其他原因签到失败 ${other} 个贴吧.`);
 }
 
 // 签到
@@ -54,9 +62,15 @@ function sign(kw, tbs){
     }, (data) => {
         let json = JSON.parse(data);
         if (!json.no) {
+            signed++;
             console.log(`贴吧 ${kw} 签到成功!!`);
         }
+        else if(json.no == 1101){
+            resigned++;
+            console.log(`贴吧 ${kw} 重复签到!!`);
+        }
         else{
+            other++;
             console.log(`贴吧 ${kw}: ${json.error}`);
         }
     })
