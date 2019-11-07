@@ -91,7 +91,7 @@ function getTbs() {
     let str = [];
     str.push(`共关注了 ${params.length} 个贴吧`);
     signed ? str.push(`成功签到了 ${signed} 个贴吧`) : '';
-    resigned ? str.push(`重复签到 ${resigned} 个贴吧;`) : '';
+    resigned ? str.push(`重复签到 ${resigned} 个贴吧`) : '';
     other ? str.push(`因其他原因签到失败 ${other} 个贴吧`) : '';
     chrome.notifications.create(null, {
         type: 'basic',
@@ -99,11 +99,14 @@ function getTbs() {
         title: '签到结果',
         message: str.join('\n')
     });
-    chrome.storage.sync.set({
-        last_sign_time: dateFormat('YYYY-mm-dd HH:MM:SS', new Date())
-    }, () => {
-        console.log('已更新');
-    });
+    // 有签到成功的贴吧才更新时间
+    if (signed) {
+        chrome.storage.sync.set({
+            last_sign_time: dateFormat('YYYY-mm-dd HH:MM:SS', new Date())
+        }, () => {
+            console.log('已更新');
+        });
+    }
 }
 
 // 签到
@@ -144,7 +147,7 @@ chrome.storage.sync.get('last_sign_time', (res) => {
             getAllTiebaInfo();
         }
     }
-    else{
+    else {
         getAllTiebaInfo();
     }
 })
