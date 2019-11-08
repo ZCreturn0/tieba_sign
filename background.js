@@ -132,6 +132,9 @@ function sign(kw, tbs) {
 
 // getAllTiebaInfo();
 
+// 下次签到的计时器
+let timer = null;
+
 // 创建 tab 时执行(打开浏览器也会触发这个事件)
 chrome.tabs.onCreated.addListener(() => {
     // 获取上次签到的时间
@@ -141,14 +144,29 @@ chrome.tabs.onCreated.addListener(() => {
             let last_sign_time = new Date(res.last_sign_time);
             if (isSameDay(now, last_sign_time)) {
                 console.log("今天已经签到过了!");
-                setTimeout(() => {
+                // 清除计时器防止重复签到
+                clearTimeout(timer);
+                // 设置第二天凌晨签到
+                timer = setTimeout(() => {
                     getAllTiebaInfo();
                 }, getNextSignDate() - new Date());
-            } else {
+            }
+            else {
                 getAllTiebaInfo();
             }
-        } else {
+        }
+        else {
             getAllTiebaInfo();
         }
     })
 })
+
+// 关闭浏览器事件
+chrome.windows.onRemoved.addListener((winId) => {
+    chrome.notifications.create(null, {
+        type: 'basic',
+        iconUrl: 'img/tieba.png',
+        title: '签到结果',
+        message: 'closed'
+    });
+});
