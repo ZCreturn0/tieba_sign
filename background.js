@@ -132,22 +132,23 @@ function sign(kw, tbs) {
 
 // getAllTiebaInfo();
 
-// 获取上次签到的时间
-chrome.storage.sync.get('last_sign_time', (res) => {
-    if (res && res.last_sign_time) {
-        let now = new Date();
-        let last_sign_time = new Date(res.last_sign_time);
-        if (isSameDay(now, last_sign_time)) {
-            console.log("今天已经签到过了!");
-            setTimeout(() => {
+// 创建 tab 时执行(打开浏览器也会触发这个事件)
+chrome.tabs.onCreated.addListener(() => {
+    // 获取上次签到的时间
+    chrome.storage.sync.get('last_sign_time', (res) => {
+        if (res && res.last_sign_time) {
+            let now = new Date();
+            let last_sign_time = new Date(res.last_sign_time);
+            if (isSameDay(now, last_sign_time)) {
+                console.log("今天已经签到过了!");
+                setTimeout(() => {
+                    getAllTiebaInfo();
+                }, getNextSignDate() - new Date());
+            } else {
                 getAllTiebaInfo();
-            }, getNextSignDate() - new Date());
-        }
-        else{
+            }
+        } else {
             getAllTiebaInfo();
         }
-    }
-    else {
-        getAllTiebaInfo();
-    }
+    })
 })
