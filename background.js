@@ -1,6 +1,9 @@
 let params = [];
 let page = 1;
 
+// 正在签到
+let isSigning = false;
+
 // 把请求设成同步
 $.ajaxSettings.async = false;
 
@@ -43,6 +46,8 @@ function getNextSignDate(){
 
 // 获取所有关注的贴吧
 function getAllTiebaInfo() {
+    // 正在签到
+    isSigning = true;
     // 获取 page 页的所有贴吧
     $.get(`http://tieba.baidu.com/f/like/mylike?&pn=${page}`, (data) => {
         let html = $.parseHTML(data);
@@ -99,8 +104,10 @@ function getTbs() {
         title: '签到结果',
         message: str.join('\n')
     });
-    // 有签到成功的贴吧才更新时间
-    if (signed) {
+    // 签到完毕
+    isSigning = false;
+    // 全部贴吧都处理过才更新时间
+    if ((signed + resigned + other) == params.length) {
         chrome.storage.sync.set({
             last_sign_time: dateFormat('YYYY-mm-dd HH:MM:SS', new Date())
         }, () => {
@@ -152,21 +159,27 @@ chrome.tabs.onCreated.addListener(() => {
                 }, getNextSignDate() - new Date());
             }
             else {
-                getAllTiebaInfo();
+                if(!isSigning) {
+                    getAllTiebaInfo();
+                }
+                else {
+                    console.log('正在签到!');
+                }
             }
         }
         else {
-            getAllTiebaInfo();
+            if (!isSigning) {
+                getAllTiebaInfo();
+            }
+            else {
+                console.log('正在签到!');
+            }
         }
     })
 })
 
 // 关闭浏览器事件
 chrome.windows.onRemoved.addListener((winId) => {
-    chrome.notifications.create(null, {
-        type: 'basic',
-        iconUrl: 'img/tieba.png',
-        title: '签到结果',
-        message: 'closed'
-    });
+    // 改变签到状态
+    isSigning = false;
 });
