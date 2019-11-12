@@ -16,6 +16,7 @@
         "default_title": "贴吧签到"
     },
     "permissions": [
+        "tabs",
         "*://*/*",
         "storage",
         "notifications",
