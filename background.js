@@ -48,6 +48,8 @@ function getNextSignDate(){
 function getAllTiebaInfo() {
     // 正在签到
     isSigning = true;
+    // 文库签到
+    wenkuSign();
     // 获取 page 页的所有贴吧
     $.get(`http://tieba.baidu.com/f/like/mylike?&pn=${page}`, (data) => {
         let html = $.parseHTML(data);
@@ -71,6 +73,19 @@ function getAllTiebaInfo() {
             getTbs();
         }
     });
+}
+
+// 文库签到
+function wenkuSign() {
+    $.get('https://wenku.baidu.com/task/browse/daily', (data) => {
+        $.post('https://wenku.baidu.com/message/getnotice', {
+            url: '/task/browse/daily'
+        }, (res) => {
+            $.get('https://wenku.baidu.com/task/submit/signin', (result) => {
+                console.log(result);
+            })
+        })
+    })
 }
 
 // 已签到的贴吧
@@ -144,6 +159,7 @@ let timer = null;
 
 // 创建 tab 时执行(打开浏览器也会触发这个事件)
 chrome.tabs.onCreated.addListener(() => {
+    wenkuSign();
     // 获取上次签到的时间
     chrome.storage.sync.get('last_sign_time', (res) => {
         if (res && res.last_sign_time) {
@@ -183,3 +199,7 @@ chrome.windows.onRemoved.addListener((winId) => {
     // 改变签到状态
     isSigning = false;
 });
+
+chrome.webRequest.onBeforeRequest.addListener(details => {
+    console.log(details.url);
+}, {urls: ["<all_urls>"]}, ["blocking"]);
